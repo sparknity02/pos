@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { DashboardIcon, PosIcon, ProductIcon, SalesIcon } from "./Icons";
 
 export default function Layout() {
   return (
@@ -9,7 +10,7 @@ export default function Layout() {
             <div className="brand-icon">S</div>
             <span>Sparknity POS</span>
           </div>
-          <div className="brand-tagline">Simple. Fast. Reliable.</div>
+          <div className="brand-tagline">Retail &amp; Billing System</div>
         </div>
 
         <nav className="sidebar-nav">
@@ -18,7 +19,7 @@ export default function Layout() {
             end
             className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
           >
-            <span>📊</span>
+            <DashboardIcon size={16} />
             <span>Dashboard</span>
           </NavLink>
 
@@ -26,15 +27,15 @@ export default function Layout() {
             to="/billing"
             className={({ isActive }) => `nav-link ${isActive ? "active-pos" : ""}`}
           >
-            <span>⚡</span>
-            <span>POS Billing</span>
+            <PosIcon size={16} />
+            <span>POS Register</span>
           </NavLink>
 
           <NavLink
             to="/products"
             className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
           >
-            <span>📦</span>
+            <ProductIcon size={16} />
             <span>Products</span>
           </NavLink>
 
@@ -42,7 +43,7 @@ export default function Layout() {
             to="/sales"
             className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
           >
-            <span>🧾</span>
+            <SalesIcon size={16} />
             <span>Sales History</span>
           </NavLink>
         </nav>
@@ -52,19 +53,18 @@ export default function Layout() {
             href="http://localhost:8761"
             target="_blank"
             rel="noreferrer"
-            className="eureka-badge"
-            title="Eureka Service Discovery"
+            className="footer-link"
           >
-            <span className="eureka-dot"></span>
+            <span className="status-indicator"></span>
             <span>Eureka: pos-service</span>
           </a>
           <a
             href="http://localhost:8080/swagger-ui/index.html"
             target="_blank"
             rel="noreferrer"
-            style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.75rem", paddingLeft: "4px" }}
+            className="footer-link"
           >
-            📘 Swagger OpenAPI Docs
+            <span>OpenAPI / Swagger</span>
           </a>
         </div>
       </aside>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getProducts, createSale } from "../services/api";
 import Cart from "../components/Cart";
 import ReceiptModal from "../components/ReceiptModal";
+import { SearchIcon, CheckIcon, AlertIcon, CloseIcon } from "../components/Icons";
 
 export default function Billing() {
   const [products, setProducts] = useState([]);
@@ -33,7 +34,7 @@ export default function Billing() {
   const handleAddToCart = (product) => {
     setError(null);
     if (product.stockQuantity <= 0) {
-      setError(`Cannot add "${product.name}" - Out of stock.`);
+      setError(`"${product.name}" is out of stock.`);
       return;
     }
 
@@ -41,7 +42,7 @@ export default function Billing() {
       const existing = prevItems.find((item) => item.id === product.id);
       if (existing) {
         if (existing.quantity >= product.stockQuantity) {
-          setError(`Cannot add more "${product.name}". Max available stock is ${product.stockQuantity}.`);
+          setError(`Max available stock (${product.stockQuantity}) reached for "${product.name}".`);
           return prevItems;
         }
         return prevItems.map((item) =>
@@ -109,18 +110,16 @@ export default function Billing() {
       const response = await createSale(salePayload);
       const newSale = response.data;
 
-      // Order success!
       setCompletedSale(newSale);
-      setSuccessMsg(`Order #${newSale.id} placed successfully! Total: ₹${Number(newSale.totalAmount).toFixed(2)}`);
+      setSuccessMsg(`Order #${newSale.id} completed. Total: ₹${Number(newSale.totalAmount).toFixed(2)}`);
       setCartItems([]);
 
-      // Refresh product stock in real-time
       await fetchProducts();
     } catch (err) {
       console.error("Order error:", err);
       const errMsg =
         err.response?.data?.message ||
-        "Failed to place order. Please check stock availability.";
+        "Failed to place order. Check product stock availability.";
       setError(errMsg);
     } finally {
       setIsPlacingOrder(false);
@@ -131,36 +130,52 @@ export default function Billing() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">POS Terminal & Billing</h1>
-          <p className="page-subtitle">Select products, customize quantities, and place transactional orders</p>
+          <h1 className="page-title">POS Billing Register</h1>
+          <p className="page-subtitle">Select catalog items and complete checkout tickets</p>
         </div>
       </div>
 
       {successMsg && (
         <div className="alert-banner alert-success">
-          <span>✓ {successMsg}</span>
-          <button className="modal-close" onClick={() => setSuccessMsg(null)}>&times;</button>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <CheckIcon size={16} />
+            <span>{successMsg}</span>
+          </div>
+          <button className="modal-close" onClick={() => setSuccessMsg(null)}>
+            <CloseIcon size={14} />
+          </button>
         </div>
       )}
 
       {error && (
         <div className="alert-banner alert-error">
-          <span>⚠ {error}</span>
-          <button className="modal-close" onClick={() => setError(null)}>&times;</button>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <AlertIcon size={16} />
+            <span>{error}</span>
+          </div>
+          <button className="modal-close" onClick={() => setError(null)}>
+            <CloseIcon size={14} />
+          </button>
         </div>
       )}
 
       <div className="pos-layout">
         {/* Left Column: Products Catalog */}
         <div className="products-catalog">
-          <div className="card catalog-search-bar">
-            <input
-              type="text"
-              className="input"
-              placeholder="🔍 Search items by name..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          <div className="card catalog-search-bar" style={{ padding: "10px 14px" }}>
+            <div style={{ position: "relative", width: "100%" }}>
+              <input
+                type="text"
+                className="input"
+                placeholder="Search catalog by item name..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ paddingLeft: "32px" }}
+              />
+              <span style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--text-light)" }}>
+                <SearchIcon size={14} />
+              </span>
+            </div>
             {search && (
               <button className="btn btn-secondary btn-sm" onClick={() => setSearch("")}>
                 Clear
@@ -169,11 +184,11 @@ export default function Billing() {
           </div>
 
           {loading ? (
-            <div className="card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
-              Loading inventory catalog...
+            <div className="card" style={{ padding: "32px", textAlign: "center", color: "var(--text-muted)" }}>
+              Loading catalog...
             </div>
           ) : products.length === 0 ? (
-            <div className="card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
+            <div className="card" style={{ padding: "32px", textAlign: "center", color: "var(--text-muted)" }}>
               No products found matching &ldquo;{search}&rdquo;.
             </div>
           ) : (
@@ -189,22 +204,27 @@ export default function Billing() {
                     className={`pos-product-card ${isOutOfStock ? "out-of-stock" : ""}`}
                   >
                     <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.725rem", color: "var(--text-light)", fontFamily: "var(--font-mono)" }}>
+                          #{product.id}
+                        </span>
+                        {inCart && (
+                          <span style={{ fontSize: "0.725rem", fontWeight: 600, color: "var(--primary)" }}>
+                            In ticket: {inCart.quantity}
+                          </span>
+                        )}
+                      </div>
                       <div className="pos-product-name">{product.name}</div>
                       <div className="pos-product-price">₹{Number(product.price).toFixed(2)}</div>
                       <div className="pos-product-stock">
                         {isOutOfStock ? (
-                          <span style={{ color: "var(--danger)", fontWeight: 600 }}>Out of Stock</span>
+                          <span style={{ color: "var(--danger)", fontWeight: 600 }}>Out of stock</span>
                         ) : product.stockQuantity <= 5 ? (
-                          <span style={{ color: "var(--warning-text)", fontWeight: 600 }}>
-                            Only {product.stockQuantity} left
+                          <span style={{ color: "var(--warning)", fontWeight: 600 }}>
+                            Low: {product.stockQuantity} left
                           </span>
                         ) : (
-                          <span>Stock: {product.stockQuantity} available</span>
-                        )}
-                        {inCart && (
-                          <span style={{ display: "block", color: "var(--primary)", fontWeight: 600, marginTop: "2px" }}>
-                            In cart: {inCart.quantity}
-                          </span>
+                          <span>Stock: {product.stockQuantity}</span>
                         )}
                       </div>
                     </div>
@@ -219,8 +239,8 @@ export default function Billing() {
                       {isOutOfStock
                         ? "Out of Stock"
                         : isMaxInCart
-                        ? "Max in Cart"
-                        : "+ Add to Cart"}
+                        ? "Max In Cart"
+                        : "+ Add to Order"}
                     </button>
                   </div>
                 );

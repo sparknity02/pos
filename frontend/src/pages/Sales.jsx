@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getSales } from "../services/api";
 import ReceiptModal from "../components/ReceiptModal";
+import { RefreshIcon, AlertIcon, CloseIcon } from "../components/Icons";
 
 export default function Sales() {
   const [sales, setSales] = useState([]);
@@ -40,39 +41,45 @@ export default function Sales() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Sales History</h1>
-          <p className="page-subtitle">Historical records of completed billing transactions</p>
+          <p className="page-subtitle">Transaction audit log and printable receipts</p>
         </div>
         <button className="btn btn-secondary" onClick={fetchSales} disabled={loading}>
-          Refresh History
+          <RefreshIcon size={14} />
+          <span>Refresh</span>
         </button>
       </div>
 
       {error && (
         <div className="alert-banner alert-error">
-          <span>⚠ {error}</span>
-          <button className="modal-close" onClick={() => setError(null)}>&times;</button>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <AlertIcon size={16} />
+            <span>{error}</span>
+          </div>
+          <button className="modal-close" onClick={() => setError(null)}>
+            <CloseIcon size={14} />
+          </button>
         </div>
       )}
 
       {loading ? (
-        <div className="card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
-          Loading sales records...
+        <div className="card" style={{ padding: "32px", textAlign: "center", color: "var(--text-muted)" }}>
+          Loading transactions...
         </div>
       ) : sales.length === 0 ? (
-        <div className="card" style={{ padding: "48px 24px", textAlign: "center", color: "var(--text-muted)" }}>
-          <p style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--text-main)" }}>No sales recorded yet</p>
-          <p style={{ fontSize: "0.875rem", marginTop: "4px" }}>Completed orders will appear here automatically.</p>
+        <div className="card" style={{ padding: "40px 20px", textAlign: "center", color: "var(--text-muted)" }}>
+          <p style={{ fontWeight: 600, color: "var(--text-main)" }}>No transactions recorded yet</p>
+          <p style={{ fontSize: "0.8rem", marginTop: "4px" }}>Completed checkout orders will appear here automatically.</p>
         </div>
       ) : (
         <div className="table-container">
           <table className="data-table">
             <thead>
               <tr>
-                <th>Sale ID</th>
+                <th style={{ width: "90px" }}>Order ID</th>
                 <th>Transaction Date</th>
-                <th>Purchased Items</th>
-                <th>Total Paid</th>
-                <th style={{ textAlign: "right" }}>Action</th>
+                <th>Items Purchased</th>
+                <th style={{ width: "130px" }}>Total Amount</th>
+                <th style={{ width: "100px", textAlign: "right" }}>Receipt</th>
               </tr>
             </thead>
             <tbody>
@@ -83,7 +90,7 @@ export default function Sales() {
 
                 return (
                   <tr key={sale.id}>
-                    <td style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>#{sale.id}</td>
+                    <td style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>#{sale.id}</td>
                     <td style={{ color: "var(--text-muted)" }}>{formatDate(sale.createdAt)}</td>
                     <td>
                       <div style={{ fontWeight: 600 }}>
@@ -93,7 +100,7 @@ export default function Sales() {
                         {sale.items?.map((i) => `${i.productName} (×${i.quantity})`).join(", ")}
                       </div>
                     </td>
-                    <td className="currency" style={{ fontSize: "1rem", color: "var(--text-main)" }}>
+                    <td className="currency" style={{ fontWeight: 600 }}>
                       ₹{Number(sale.totalAmount).toFixed(2)}
                     </td>
                     <td style={{ textAlign: "right" }}>
@@ -101,7 +108,7 @@ export default function Sales() {
                         className="btn btn-secondary btn-sm"
                         onClick={() => setSelectedSale(sale)}
                       >
-                        View Receipt
+                        Receipt
                       </button>
                     </td>
                   </tr>

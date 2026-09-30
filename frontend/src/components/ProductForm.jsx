@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { CloseIcon } from "./Icons";
 
 export default function ProductForm({ product, onSubmit, onClose, isSubmitting }) {
   const [formData, setFormData] = useState({
@@ -23,13 +24,13 @@ export default function ProductForm({ product, onSubmit, onClose, isSubmitting }
   const validate = () => {
     const errs = {};
     if (!formData.name.trim()) {
-      errs.name = "Product name is required";
+      errs.name = "Item name is required";
     }
     if (!formData.price || Number(formData.price) <= 0) {
       errs.price = "Price must be greater than 0";
     }
     if (formData.stockQuantity === "" || Number(formData.stockQuantity) < 0) {
-      errs.stockQuantity = "Stock quantity cannot be negative";
+      errs.stockQuantity = "Stock cannot be negative";
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -50,15 +51,15 @@ export default function ProductForm({ product, onSubmit, onClose, isSubmitting }
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2 className="modal-title">{product ? "Edit Product" : "Add New Product"}</h2>
-          <button className="modal-close" onClick={onClose} aria-label="Close modal">
-            &times;
+          <h2 className="modal-title">{product ? "Edit Product" : "New Product"}</h2>
+          <button className="modal-close" onClick={onClose} aria-label="Close">
+            <CloseIcon size={16} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label" htmlFor="prod-name">Product Name *</label>
+            <label className="form-label" htmlFor="prod-name">Item Name *</label>
             <input
               id="prod-name"
               type="text"
@@ -74,47 +75,49 @@ export default function ProductForm({ product, onSubmit, onClose, isSubmitting }
             {errors.name && <div className="form-error">{errors.name}</div>}
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="prod-price">Price (₹) *</label>
-            <input
-              id="prod-price"
-              type="number"
-              step="0.01"
-              min="0.01"
-              className="input"
-              placeholder="e.g. 799.00"
-              value={formData.price}
-              onChange={(e) => {
-                setFormData({ ...formData, price: e.target.value });
-                if (errors.price) setErrors({ ...errors, price: null });
-              }}
-            />
-            {errors.price && <div className="form-error">{errors.price}</div>}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="prod-price">Unit Price (₹) *</label>
+              <input
+                id="prod-price"
+                type="number"
+                step="0.01"
+                min="0.01"
+                className="input"
+                placeholder="0.00"
+                value={formData.price}
+                onChange={(e) => {
+                  setFormData({ ...formData, price: e.target.value });
+                  if (errors.price) setErrors({ ...errors, price: null });
+                }}
+              />
+              {errors.price && <div className="form-error">{errors.price}</div>}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="prod-stock">Initial Stock *</label>
+              <input
+                id="prod-stock"
+                type="number"
+                min="0"
+                className="input"
+                placeholder="0"
+                value={formData.stockQuantity}
+                onChange={(e) => {
+                  setFormData({ ...formData, stockQuantity: e.target.value });
+                  if (errors.stockQuantity) setErrors({ ...errors, stockQuantity: null });
+                }}
+              />
+              {errors.stockQuantity && <div className="form-error">{errors.stockQuantity}</div>}
+            </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="prod-stock">Stock Quantity *</label>
-            <input
-              id="prod-stock"
-              type="number"
-              min="0"
-              className="input"
-              placeholder="e.g. 25"
-              value={formData.stockQuantity}
-              onChange={(e) => {
-                setFormData({ ...formData, stockQuantity: e.target.value });
-                if (errors.stockQuantity) setErrors({ ...errors, stockQuantity: null });
-              }}
-            />
-            {errors.stockQuantity && <div className="form-error">{errors.stockQuantity}</div>}
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "24px" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "18px" }}>
             <button type="button" className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : product ? "Update Product" : "Create Product"}
+              {isSubmitting ? "Saving..." : product ? "Update Item" : "Create Item"}
             </button>
           </div>
         </form>

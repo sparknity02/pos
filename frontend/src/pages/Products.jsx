@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../services/api";
 import ProductTable from "../components/ProductTable";
 import ProductForm from "../components/ProductForm";
+import { SearchIcon, PlusIcon, CheckIcon, AlertIcon, CloseIcon } from "../components/Icons";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -54,10 +55,10 @@ export default function Products() {
     try {
       if (editingProduct) {
         await updateProduct(editingProduct.id, formData);
-        showNotification("Product updated successfully!");
+        showNotification("Product updated successfully.");
       } else {
         await createProduct(formData);
-        showNotification("Product created successfully!");
+        showNotification("Product created successfully.");
       }
       handleCloseModal();
       fetchProducts();
@@ -94,51 +95,67 @@ export default function Products() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Product Inventory</h1>
-          <p className="page-subtitle">Manage items, unit prices, and stock inventory</p>
+          <h1 className="page-title">Products Inventory</h1>
+          <p className="page-subtitle">Product catalog, pricing, and stock management</p>
         </div>
         <button className="btn btn-primary" onClick={handleOpenAddModal}>
-          + Add New Product
+          <PlusIcon size={14} />
+          <span>Add Product</span>
         </button>
       </div>
 
       {successMsg && (
         <div className="alert-banner alert-success">
-          <span>✓ {successMsg}</span>
-          <button className="modal-close" onClick={() => setSuccessMsg(null)}>&times;</button>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <CheckIcon size={16} />
+            <span>{successMsg}</span>
+          </div>
+          <button className="modal-close" onClick={() => setSuccessMsg(null)}>
+            <CloseIcon size={14} />
+          </button>
         </div>
       )}
 
       {error && (
         <div className="alert-banner alert-error">
-          <span>⚠ {error}</span>
-          <button className="modal-close" onClick={() => setError(null)}>&times;</button>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <AlertIcon size={16} />
+            <span>{error}</span>
+          </div>
+          <button className="modal-close" onClick={() => setError(null)}>
+            <CloseIcon size={14} />
+          </button>
         </div>
       )}
 
-      <div className="card" style={{ marginBottom: "20px" }}>
-        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-          <input
-            type="text"
-            className="input"
-            placeholder="🔍 Search products by name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ maxWidth: "400px" }}
-          />
+      <div className="card" style={{ marginBottom: "16px" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <div style={{ position: "relative", width: "100%", maxWidth: "360px" }}>
+            <input
+              type="text"
+              className="input"
+              placeholder="Search products by name..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ paddingLeft: "32px" }}
+            />
+            <span style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--text-light)" }}>
+              <SearchIcon size={14} />
+            </span>
+          </div>
           {search && (
             <button className="btn btn-secondary btn-sm" onClick={() => setSearch("")}>
-              Clear Search
+              Clear
             </button>
           )}
-          <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginLeft: "auto" }}>
-            Total Items: <strong>{products.length}</strong>
+          <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginLeft: "auto" }}>
+            Count: <strong>{products.length}</strong>
           </span>
         </div>
       </div>
 
       {loading ? (
-        <div className="card" style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+        <div className="card" style={{ textAlign: "center", padding: "32px", color: "var(--text-muted)" }}>
           Loading products...
         </div>
       ) : (

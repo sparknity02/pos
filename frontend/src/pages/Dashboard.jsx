@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getDashboardStats, getSales } from "../services/api";
 import ReceiptModal from "../components/ReceiptModal";
+import { RefreshIcon, PosIcon, ProductIcon, SalesIcon, AlertIcon } from "../components/Icons";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -28,7 +29,6 @@ export default function Dashboard() {
         getSales(),
       ]);
       setStats(statsRes.data);
-      // Grab top 5 most recent sales
       const salesList = Array.isArray(salesRes.data)
         ? salesRes.data
         : salesRes.data.content || [];
@@ -53,15 +53,17 @@ export default function Dashboard() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Dashboard Overview</h1>
-          <p className="page-subtitle">Real-time statistics and billing activity</p>
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-subtitle">Store summary, inventory levels, and recent transactions</p>
         </div>
-        <div style={{ display: "flex", gap: "12px" }}>
+        <div style={{ display: "flex", gap: "10px" }}>
           <button className="btn btn-secondary" onClick={fetchDashboardData} disabled={loading}>
-            Refresh
+            <RefreshIcon size={14} />
+            <span>Refresh</span>
           </button>
           <Link to="/billing" className="btn btn-primary">
-            ⚡ Open POS Terminal
+            <PosIcon size={15} />
+            <span>New Sale</span>
           </Link>
         </div>
       </div>
@@ -76,16 +78,16 @@ export default function Dashboard() {
       )}
 
       {loading ? (
-        <div className="card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
-          Loading dashboard metrics...
+        <div className="card" style={{ padding: "32px", textAlign: "center", color: "var(--text-muted)" }}>
+          Loading dashboard data...
         </div>
       ) : (
         <>
           <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-header">
-                <span>Total Products</span>
-                <span>📦</span>
+                <span>Total Catalog Items</span>
+                <ProductIcon size={16} />
               </div>
               <div className="stat-value">{stats.totalProducts}</div>
             </div>
@@ -93,51 +95,55 @@ export default function Dashboard() {
             <div className={`stat-card ${stats.lowStockProducts > 0 ? "alert-card" : ""}`}>
               <div className="stat-header">
                 <span>Low Stock Items</span>
-                <span>⚠️</span>
+                <AlertIcon size={16} />
               </div>
-              <div className="stat-value">{stats.lowStockProducts}</div>
+              <div className="stat-value" style={stats.lowStockProducts > 0 ? { color: "var(--warning)" } : {}}>
+                {stats.lowStockProducts}
+              </div>
             </div>
 
             <div className="stat-card">
               <div className="stat-header">
-                <span>Total Sales</span>
-                <span>🧾</span>
+                <span>Total Orders</span>
+                <SalesIcon size={16} />
               </div>
               <div className="stat-value">{stats.totalSales}</div>
             </div>
 
             <div className="stat-card">
               <div className="stat-header">
-                <span>Today&apos;s Revenue</span>
-                <span>₹</span>
+                <span>Today's Sales</span>
+                <span style={{ fontWeight: 700 }}>INR</span>
               </div>
-              <div className="stat-value currency" style={{ color: "var(--primary)" }}>
+              <div className="stat-value currency">
                 ₹{Number(stats.todaySales || 0).toFixed(2)}
               </div>
             </div>
           </div>
 
-          <div className="card" style={{ marginTop: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <h2 style={{ fontSize: "1.1rem", fontWeight: 700 }}>Recent Completed Transactions</h2>
-              <Link to="/sales" style={{ fontSize: "0.875rem", color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}>
-                View All Sales &rarr;
+          <div className="card" style={{ marginTop: "16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+              <h2 style={{ fontSize: "1rem", fontVariantNumeric: "tabular-nums", fontWeight: 700 }}>
+                Recent Transactions
+              </h2>
+              <Link to="/sales" style={{ fontSize: "0.8rem", color: "var(--primary)", fontWeight: 500, textDecoration: "none" }}>
+                View all transactions &rarr;
               </Link>
             </div>
 
             {recentSales.length === 0 ? (
-              <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", padding: "20px 0", textAlign: "center" }}>
-                No sales recorded yet. Start billing in the POS terminal!
+              <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", padding: "16px 0", textAlign: "center" }}>
+                No transactions recorded yet.
               </p>
             ) : (
               <div className="table-container">
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th>Sale ID</th>
-                      <th>Date & Time</th>
-                      <th>Items Sold</th>
-                      <th>Total Amount</th>
+                      <th>Order ID</th>
+                      <th>Date / Time</th>
+                      <th>Items</th>
+                      <th>Total</th>
                       <th style={{ textAlign: "right" }}>Receipt</th>
                     </tr>
                   </thead>
@@ -149,13 +155,13 @@ export default function Dashboard() {
                         <td>
                           {sale.items ? (
                             <span>
-                              {sale.items.reduce((acc, i) => acc + i.quantity, 0)} items ({sale.items.length} types)
+                              {sale.items.reduce((acc, i) => acc + i.quantity, 0)} units ({sale.items.length} lines)
                             </span>
                           ) : (
                             "-"
                           )}
                         </td>
-                        <td className="currency" style={{ fontWeight: 700, color: "var(--text-main)" }}>
+                        <td className="currency" style={{ fontWeight: 700 }}>
                           ₹{Number(sale.totalAmount).toFixed(2)}
                         </td>
                         <td style={{ textAlign: "right" }}>
@@ -163,7 +169,7 @@ export default function Dashboard() {
                             className="btn btn-secondary btn-sm"
                             onClick={() => setSelectedSale(sale)}
                           >
-                            View Receipt
+                            View
                           </button>
                         </td>
                       </tr>
