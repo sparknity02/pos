@@ -11,21 +11,8 @@
 	<groupId>com.sparknity</groupId>
 	<artifactId>sparknity</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+	<name>sparknity-pos-backend</name>
+	<description>Sparknity POS Spring Boot Backend Service</description>
 	<properties>
 		<java.version>25</java.version>
 		<spring-cloud.version>2025.1.3</spring-cloud.version>
