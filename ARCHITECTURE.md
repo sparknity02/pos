@@ -8,6 +8,8 @@ This document outlines the complete architectural specifications, component boun
 
 The system follows a decoupled, three-tier enterprise web architecture with client-side rendering, a transactional RESTful service layer, service discovery, and a relational database.
 
+![Sparknity POS System Architecture](docs/architecture.jpg)
+
 ```text
 +-----------------------------------------------------------------------------------+
 |                                 CLIENT TIER                                       |

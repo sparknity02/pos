@@ -10,6 +10,8 @@ A full-stack Point of Sale (POS) and inventory management system built with Java
 
 ## Architecture
 
+![Sparknity POS System Architecture](docs/architecture.jpg)
+
 ```text
                   +--------------------------+
                   |      React Frontend      |
